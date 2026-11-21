@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>مدارس الأحد - كنيسة السيدة العذراء مريم والأنبا بيشوي</title>
+<link rel="icon" href="/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800;900&family=Reem+Kufi:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{--wine:#4a0b17;--wine2:#7d1727;--red:#a3202f;--gold:#e8b84a;--gold2:#fff0c8;--cream:#fffaf0;--ink:#2b1a22;--blue:#274690;--ok:#1f9d55;--bad:#d64545}
+*{box-sizing:border-box}
+body{margin:0;font-family:'Cairo',sans-serif;color:var(--ink);min-height:100vh;background:#3a0912}
+h1,h2,h3,.kufi{font-family:'Reem Kufi','Cairo',sans-serif}
+/* ---------- animated background ---------- */
+#bg{position:fixed;inset:0;z-index:-1;overflow:hidden;background:radial-gradient(ellipse at 50% 0%,#8a1b2c 0%,#4a0b17 55%,#2b0610 100%)}
+.rays{position:absolute;left:50%;top:-30%;width:170vmax;height:170vmax;margin-left:-85vmax;background:repeating-conic-gradient(rgba(232,184,74,.13) 0 5deg,transparent 5deg 15deg);-webkit-mask-image:radial-gradient(circle,#000 0,transparent 55%);mask-image:radial-gradient(circle,#000 0,transparent 55%);animation:spin 140s linear infinite}
+.fl{position:absolute;bottom:-80px;opacity:0;animation:rise linear infinite;filter:drop-shadow(0 0 8px rgba(232,184,74,.6))}
+.fl.img{border:4px solid var(--gold);border-radius:18px;object-fit:cover;filter:none;box-shadow:0 8px 24px rgba(0,0,0,.5)}
+@keyframes rise{0%{transform:translate(0,0) rotate(0);opacity:0}12%{opacity:.55}88%{opacity:.55}100%{transform:translate(var(--dx),-120vh) rotate(var(--rot));opacity:0}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes bob{50%{transform:translateY(-12px)}}
+@keyframes glow{50%{box-shadow:0 0 0 10px rgba(232,184,74,.18),0 0 60px 14px rgba(232,184,74,.55)}}
+@keyframes pop{0%{transform:scale(.94)}60%{transform:scale(1.04)}100%{transform:scale(1)}}
+@keyframes grow{from{height:0}}
+@keyframes shine{to{background-position:-200% 0}}
+/* ---------- layout ---------- */
+header{position:sticky;top:0;z-index:20;background:rgba(58,9,18,.82);backdrop-filter:blur(10px);border-bottom:3px solid var(--gold)}
+.hd{max-width:920px;margin:auto;padding:10px 16px;display:flex;align-items:center;gap:12px}
+.hd .lg{width:50px;height:50px;border-radius:14px;background:#fff;padding:3px;object-fit:contain;box-shadow:0 0 14px rgba(232,184,74,.7)}
+.hd h1{margin:0;flex:1;color:var(--gold);font-size:1.25rem;line-height:1.2}
+.hd small{display:block;color:#f6dcdc;font:400 .75rem Cairo}
+.pts{background:linear-gradient(135deg,#ffd877,#e8b84a);color:var(--wine);font-weight:900;padding:5px 14px;border-radius:999px;text-align:center;line-height:1.2;box-shadow:0 3px 0 #a67a1c}
+.pts small{color:var(--wine2);font-weight:700}
+nav{max-width:920px;margin:auto;display:flex;gap:6px;padding:0 12px 8px}
+nav button{flex:1;background:rgba(255,255,255,.08);color:#f6dcdc;border:2px solid transparent;padding:9px 4px;font:700 .95rem Cairo;cursor:pointer;border-radius:999px;transition:.2s}
+nav button.on{background:var(--gold);color:var(--wine);box-shadow:0 3px 0 #a67a1c}
+main{max-width:920px;margin:20px auto 70px;padding:0 14px}
+.card{background:linear-gradient(180deg,var(--cream),#fff1d6);border:3px solid var(--gold);border-radius:24px;padding:18px 20px;margin-bottom:16px;box-shadow:0 10px 28px rgba(0,0,0,.4)}
+h2{color:var(--red);margin:.1em 0 .4em;font-weight:700}
+.btn{background:linear-gradient(180deg,#c42a3c,var(--red));color:#fff;border:0;border-radius:16px;padding:12px 24px;font:800 1.05rem Cairo;cursor:pointer;box-shadow:0 4px 0 #6d121d;transition:transform .08s}
+.btn:active{transform:translateY(3px);box-shadow:0 1px 0 #6d121d}
+.btn.gold{background:linear-gradient(180deg,#ffd877,var(--gold));color:var(--wine);box-shadow:0 4px 0 #a67a1c}
+.btn.ghost{background:#fff;color:var(--wine2);border:2px solid var(--wine2);box-shadow:none}
+.btn.sm{padding:6px 14px;font-size:.9rem;border-radius:12px}
+.btn.wide{width:100%;font-size:1.25rem;padding:16px}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+input,textarea{width:100%;padding:11px 14px;border:2px solid #d9c9a6;border-radius:14px;font:600 1rem Cairo;background:#fff;margin:4px 0 10px;color:var(--ink)}
+input:focus,textarea:focus{outline:3px solid var(--gold);border-color:var(--wine2)}
+label{font-weight:800;color:var(--wine2)}
+.row{display:flex;gap:10px;flex-wrap:wrap}.row>*{flex:1;min-width:130px}
+.err{background:#fde0e0;color:#8f1d1d;border-radius:12px;padding:10px 14px;margin:8px 0;font-weight:700}
+.badge{display:inline-block;padding:3px 12px;border-radius:999px;font-size:.82rem;font-weight:800;background:#f3e6c4;color:var(--wine2);margin:2px 0 2px 6px}
+.badge.g{background:#d8f5e3;color:#13683a}.badge.r{background:#fde0e0;color:var(--bad)}.badge.n{background:var(--red);color:#fff;background-image:linear-gradient(90deg,transparent,rgba(255,255,255,.5),transparent);background-size:200% 100%;animation:shine 2s linear infinite}
+/* ---------- hero / login ---------- */
+.hero{text-align:center;color:#fff;margin:6px 0 18px}
+.hero .lg{width:min(54vw,230px);background:#fff;border-radius:34px;padding:8px;animation:bob 5s ease-in-out infinite,glow 3.5s ease-in-out infinite}
+.hero h1{margin:14px 0 4px;font-size:2.3rem;color:var(--gold);text-shadow:0 3px 0 #000a}
+.hero p{margin:0;color:#f6dcdc;font-weight:600}
+.tabs{display:flex;gap:8px;margin-bottom:14px}.tabs .btn{flex:1}
+/* ---------- lessons ---------- */
+.quiz{display:flex;align-items:center;gap:14px;flex-wrap:wrap}.quiz .t{flex:1;min-width:190px}.quiz h2{margin:0}
+.ref{font-weight:800;color:var(--wine2)}
+.passage{background:#fff7dc;border-right:8px solid var(--gold);border-radius:16px;padding:16px 20px;font:400 1.3rem/2.1 'Reem Kufi','Cairo',serif;white-space:pre-wrap}
+/* ---------- quiz wizard ---------- */
+.prog{height:16px;background:rgba(255,255,255,.2);border-radius:99px;overflow:hidden;margin:6px 0}
+.prog div{height:100%;background:linear-gradient(90deg,#ffd877,var(--gold));border-radius:99px;transition:width .4s}
+.qcount{color:var(--gold2);font-weight:800;margin-bottom:8px;text-align:center}
+.qcard h2{font-size:1.5rem;line-height:1.5}
+.opt{display:flex;gap:12px;align-items:center;width:100%;text-align:right;background:#fff;border:3px solid #e6d3a4;border-radius:18px;padding:13px 16px;margin:10px 0;font:700 1.15rem Cairo;cursor:pointer;color:var(--ink);transition:.15s}
+.opt:hover:not(:disabled){border-color:var(--red);transform:translateX(-4px)}
+.opt.sel{background:linear-gradient(135deg,#c42a3c,var(--wine2));border-color:var(--gold);color:#fff;animation:pop .3s}
+.opt.ok{background:#d8f5e3;border-color:var(--ok);color:#0e5a30}.opt.no{background:#fde0e0;border-color:var(--bad);color:#8f1d1d}
+.opt i{font-style:normal;background:var(--gold);color:var(--wine);width:36px;height:36px;border-radius:50%;display:grid;place-items:center;flex:none;font-weight:900}
+.result{text-align:center}.result .em{font-size:4.5rem;animation:bob 2s infinite}
+.result .sc{font:700 3.4rem 'Reem Kufi';color:var(--red)}
+.ribbon{display:inline-block;background:linear-gradient(135deg,#ffd877,var(--gold));color:var(--wine);font-weight:900;padding:8px 20px;border-radius:999px;margin:8px 0;animation:pop .6s}
+/* ---------- leaderboard ---------- */
+.podium{display:flex;direction:ltr;align-items:flex-end;justify-content:center;gap:10px;margin:10px 0 24px;text-align:center}
+.pod{flex:1;max-width:190px;color:#fff;font-weight:800}.pod b{display:block;font-size:1rem;margin:2px 0}.pod span{color:var(--gold);font:700 1.5rem 'Reem Kufi'}
+.pod .av{font-size:2.6rem}.pod.p1 .av{font-size:3.4rem;animation:bob 2.5s infinite}
+.bar{height:var(--h);margin-top:6px;border-radius:16px 16px 0 0;background:linear-gradient(180deg,var(--gold),#a67a1c);animation:grow 1.2s cubic-bezier(.2,.9,.3,1.2)}
+.p2 .bar{background:linear-gradient(180deg,#e5e8ee,#8e96a6)}.p3 .bar{background:linear-gradient(180deg,#e6b184,#a06a3c)}
+.lb{display:flex;align-items:center;gap:12px;padding:9px 8px;border-bottom:2px dashed #e1cf9f}
+.lb .n{width:40px;height:40px;border-radius:50%;background:#f3e6c4;display:grid;place-items:center;font-weight:900;flex:none}
+.lb.me{background:var(--gold2);border-radius:14px}.lb b{flex:1}.lb span{font-weight:900;color:var(--red);font-size:1.2rem}
+/* ---------- admin ---------- */
+.q-admin{border:2px dashed var(--wine2);border-radius:16px;padding:12px;margin:12px 0;background:#fffdf6}
+.oprow{display:flex;gap:8px;align-items:center}.oprow input[type=radio]{width:24px;height:24px;margin:0 0 6px;accent-color:var(--ok)}
+.fall{position:fixed;top:-40px;font-size:1.8rem;animation:fall 3s linear forwards;pointer-events:none;z-index:99}
+@keyframes fall{to{transform:translateY(110vh) rotate(540deg)}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.fl,.fall{display:none}}
+</style>
+</head>
+<body>
+<div id="bg"><div class="rays"></div></div>
+<header><div class="hd" id="hd"></div><nav id="nav"></nav></header>
+<main id="app"></main>
+<script>
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const L=['أ','ب','ج','د'];
+// Put your own pictures in public/art/ and list them here, e.g. ['/art/1.jpg','/art/2.jpg']. They float gently in the background.
+const BG_IMAGES=[];
+const crossSvg=z=>`<svg width="${z}" height="${z}" viewBox="0 0 100 100"><g fill="#e8b84a"><rect x="40" y="8" width="20" height="84" rx="4"/><rect x="8" y="40" width="84" height="20" rx="4"/><circle cx="50" cy="8" r="7"/><circle cx="50" cy="92" r="7"/><circle cx="8" cy="50" r="7"/><circle cx="92" cy="50" r="7"/></g><circle cx="50" cy="50" r="9" fill="#a3202f"/></svg>`;
+const LEVELS=[[0,'🌱','بذرة صغيرة'],[50,'⭐','نجم'],[150,'🕊️','حمامة'],[300,'🕯️','نور'],[500,'👑','بطل']];
+const lvl=p=>LEVELS.filter(l=>p>=l[0]).pop();
+async function api(p,o={}){const r=await fetch('/api'+p,{method:o.method||'GET',headers:{'Content-Type':'application/json'},body:o.body?JSON.stringify(o.body):undefined});
+ const d=await r.json().catch(()=>({}));if(!r.ok)throw new Error(d.error||'حصل خطأ');return d}
+let me=null,view='quizzes';
+
+// floating background
+(function(){const bg=$('#bg'),E=[()=>crossSvg(30+Math.random()*30),()=>'🕊️',()=>'⭐',()=>'🕯️',()=>'📖',()=>'✨'];
+ const mk=(html,size,isImg)=>{const s=document.createElement(isImg?'img':'span');s.className='fl'+(isImg?' img':'');if(isImg){s.src=html;s.style.width=s.style.height=size+'px'}else{s.innerHTML=html;s.style.fontSize=size+'px'}
+  s.style.left=Math.random()*96+'%';s.style.setProperty('--dx',(Math.random()*200-100)+'px');s.style.setProperty('--rot',(Math.random()*80-40)+'deg');
+  s.style.animationDuration=(isImg?40:16)+Math.random()*18+'s';s.style.animationDelay=-Math.random()*30+'s';bg.append(s)};
+ for(let i=0;i<22;i++)mk(E[i%E.length](),20+Math.random()*26);
+ BG_IMAGES.forEach(u=>mk(u,90+Math.random()*50,true));
+})();
+
+function confetti(){const e=['⭐','🕊️','🎉','🌟','📖','🕯️','✨'];for(let i=0;i<40;i++){const s=document.createElement('span');s.className='fall';s.textContent=e[i%e.length];
+ s.style.left=Math.random()*100+'vw';s.style.animationDelay=Math.random()*1.2+'s';document.body.append(s);setTimeout(()=>s.remove(),4600)}}
+function countUp(el,to){let n=0;const t=setInterval(()=>{n+=Math.max(1,Math.ceil(to/30));if(n>=to){n=to;clearInterval(t)}el.textContent=n},30)}
+
+function chrome(){
+ const l=me&&lvl(me.points);
+ $('#hd').innerHTML=`<img class="lg" src="/logo.png" alt=""><h1>مدارس الأحد<small>${me?`أهلاً ${esc(me.name)}`:'كنيسة السيدة العذراء مريم والأنبا بيشوي'}</small></h1>`+
+  (me&&me.role==='student'?`<div class="pts">⭐ ${me.points}<small style="display:block;font-size:.7rem">${l[1]} ${l[2]}</small></div>`:'')+(me?`<button class="btn sm ghost" onclick="logout()">خروج</button>`:'');
+ const t=me?(me.role==='admin'?[['admin','⚙️ إدارة'],['quizzes','📖 الدروس'],['board','🏆 الأبطال']]:[['quizzes','📖 دروس الأسبوع'],['board','🏆 الأبطال']]):[];
+ $('#nav').innerHTML=t.map(([k,x])=>`<button class="${view===k?'on':''}" onclick="go('${k}')">${x}</button>`).join('');
+}
+async function go(v){view=v;chrome();({quizzes:renderQuizzes,board:renderBoard,admin:renderAdmin})[v]();scrollTo(0,0)}
+async function logout(){await api('/logout',{method:'POST'});me=null;boot()}
+async function refreshMe(){me=await api('/me');chrome()}
+
+function renderAuth(){
+ let mode='in';
+ const draw=()=>{$('#app').innerHTML=`<div class="hero"><img class="lg" src="/logo.png" alt="شعار الكنيسة"><h1>مدارس الأحد</h1><p>كنيسة السيدة العذراء مريم والقديس الأنبا بيشوي — التجمع الخامس</p></div>
+  <div class="card" style="max-width:460px;margin:auto">
+  <div class="tabs"><button class="btn ${mode==='in'?'':'ghost'}" onclick="setM('in')">دخول</button><button class="btn ${mode==='up'?'':'ghost'}" onclick="setM('up')">حساب جديد</button></div>
+  <div id="e"></div>
+  ${mode==='up'?'<label>اسمك</label><input id="nm" placeholder="مثال: مينا جرجس">':''}
+  <label>اسم المستخدم</label><input id="un" autocomplete="username" dir="ltr" placeholder="mina2015">
+  <label>كلمة السر</label><input id="pw" type="password" autocomplete="current-password" dir="ltr">
+  <button class="btn gold wide" onclick="submitAuth()">${mode==='in'?'يلا ندخل 🚀':'ابدأ الرحلة ✝️'}</button></div>`};
+ window.setM=m=>{mode=m;draw()};
+ window.submitAuth=async()=>{try{await api(mode==='in'?'/login':'/signup',{method:'POST',body:{name:$('#nm')?.value,username:$('#un').value,password:$('#pw').value}});boot()}
+  catch(e){$('#e').innerHTML=`<div class="err">${esc(e.message)}</div>`}};
+ draw();
+}
+
+async function renderQuizzes(){
+ const qs=await api('/quizzes');
+ $('#app').innerHTML=!qs.length?`<div class="card result"><div class="em">📖</div><h2>مفيش دروس لسه</h2><p>استنى مدرسك يضيف درس الأسبوع!</p></div>`:
+ qs.map(q=>`<div class="card quiz"><div class="t"><h2>${esc(q.title)}</h2><div class="ref">${esc(q.passage_ref)}</div>
+  ${q.my_score==null&&me.role!=='admin'?'<span class="badge n">جديد!</span>':''}<span class="badge">${q.n_questions} أسئلة</span><span class="badge">⭐ ${q.max_score} نقطة</span><span class="badge">🎁 +${q.bonus_points} لأول ٥</span>
+  ${me.role==='admin'&&!q.active?'<span class="badge r">مخفي</span>':''}</div>
+  ${q.my_score!=null?`<span class="badge g">✅ ${q.my_score}${q.my_bonus?` + ${q.my_bonus} 🎁`:''}</span>`:''}
+  <button class="btn ${q.my_score!=null?'ghost':'gold'}" onclick="openQuiz(${q.id})">${q.my_score!=null?'راجع إجاباتك':me.role==='admin'?'معاينة':'ابدأ التحدي 🚀'}</button></div>`).join('');
+}
+
+const backBtn=`<button class="btn sm gold" style="margin-bottom:12px" onclick="go('quizzes')">← الدروس</button>`;
+const passageCard=q=>`<div class="card"><h2>${esc(q.title)}</h2><div class="ref">${esc(q.passage_ref)}</div><div class="passage">${esc(q.passage_text)}</div></div>`;
+
+async function openQuiz(id){
+ const q=await api('/quizzes/'+id);scrollTo(0,0);
+ if(q.attempt||me.role==='admin')return reviewView(q);
+ const ans={},n=q.questions.length;let i=-1;
+ const draw=()=>{
+  if(i<0){$('#app').innerHTML=backBtn+passageCard(q)+`<button class="btn gold wide" onclick="W.go(0)">اقرأ كويس… وبعدين يلا نبدأ! 🚀</button>`;return}
+  const x=q.questions[i];
+  $('#app').innerHTML=backBtn+`<div class="prog"><div style="width:${(i/n)*100}%"></div></div><div class="qcount">سؤال ${i+1} من ${n}</div>
+  <div class="card qcard"><span class="badge">⭐ ${x.points} نقطة</span><h2>${esc(x.text)}</h2>
+  ${x.options.map((o,j)=>`<button class="opt ${ans[x.id]===j?'sel':''}" onclick="W.pick(${x.id},${j})"><i>${L[j]}</i>${esc(o)}</button>`).join('')}</div>
+  <div class="row"><button class="btn ghost" onclick="W.go(${i-1})">السابق</button><button class="btn gold" ${ans[x.id]==null?'disabled':''} onclick="W.next()">${i===n-1?'تسليم ✝️':'التالي ←'}</button></div><div id="e"></div>`};
+ window.W={go:j=>{i=j;draw();scrollTo(0,0)},pick:(qid,j)=>{ans[qid]=j;draw()},
+  next:async()=>{if(i<n-1)return W.go(i+1);
+   try{const r=await api(`/quizzes/${id}/submit`,{method:'POST',body:{answers:ans}});confetti();await refreshMe();resultView(q,r)}
+   catch(e){$('#e').innerHTML=`<div class="err">${esc(e.message)}</div>`}}};
+ draw();
+}
+function resultView(q,r){
+ const pct=r.max?r.score/r.max:0;
+ $('#app').innerHTML=`<div class="card result"><div class="em">${pct>=.8?'🏆':pct>=.5?'🌟':'💪'}</div><h2>${pct>=.8?'ما شاء الله! بطل!':pct>=.5?'شاطر جداً!':'كمل وهتبقى أحسن!'}</h2>
+  <div class="sc"><span id="cu">0</span> / ${r.max}</div>
+  ${r.bonus?`<div class="ribbon">🎁 بونص +${r.bonus} — كنت رقم ${r.rank} في الترتيب!</div>`:`<p>كنت رقم ${r.rank} في الترتيب</p>`}
+  <div class="row" style="margin-top:12px"><button class="btn gold" onclick="openQuiz(${q.id})">راجع إجاباتك</button><button class="btn" onclick="go('board')">🏆 شوف الترتيب</button></div></div>`;
+ countUp($('#cu'),r.score);
+}
+function reviewView(q){
+ const a=q.attempt;
+ $('#app').innerHTML=backBtn+(a?`<div class="card result"><div class="em">📝</div><h2>جبت ${a.score} نقطة${a.bonus?` + ${a.bonus} بونص 🎁 (رقم ${a.rank})`:''}</h2></div>`:'')+passageCard(q)+
+  q.questions.map((x,i)=>`<div class="card"><b style="font-size:1.15rem">${i+1}) ${esc(x.text)}</b> <span class="badge">⭐ ${x.points}</span>
+   ${x.options.map((o,j)=>{const c=a?(j===x.correct_index?'ok':j===x.chosen_index?'no':''):'';
+     return `<button class="opt ${c}" disabled><i>${L[j]}</i>${esc(o)}${c==='ok'?' ✅':''}${c==='no'?' ❌':''}</button>`}).join('')}</div>`).join('');
+}
+
+async function renderBoard(){
+ const r=await api('/leaderboard'),m=['🥇','🥈','🥉'],top=r.slice(0,3),H=[150,115,90];
+ $('#app').innerHTML=`<h2 class="kufi" style="color:var(--gold);text-align:center;font-size:2rem">🏆 لوحة الأبطال</h2>`+
+  (top.length?`<div class="podium">${[1,0,2].filter(k=>top[k]).map(k=>`<div class="pod p${k+1}"><div class="av">${m[k]}</div><b>${esc(top[k].name)}</b><span>${top[k].points}</span><div class="bar" style="--h:${H[k]}px"></div></div>`).join('')}</div>`:'')+
+  `<div class="card">${r.length?r.map((u,i)=>`<div class="lb ${u.id===me.id?'me':''}"><div class="n">${m[i]||i+1}</div><b>${esc(u.name)}</b><small>${lvl(u.points)[1]} ${u.quizzes_done} اختبار</small><span>${u.points}</span></div>`).join(''):'<p>مفيش طلاب لسه.</p>'}</div>`;
+}
+
+async function renderAdmin(){
+ const qs=await api('/quizzes');
+ $('#app').innerHTML=`<div class="card"><h2>➕ درس جديد</h2><div id="e"></div>
+  <div class="row"><div><label>عنوان الدرس</label><input id="t" placeholder="مثال: الابن الضال"></div><div><label>المرجع</label><input id="r" placeholder="لوقا ١٥: ١١-٣٢"></div></div>
+  <label>نص الآيات</label><textarea id="p" rows="6" placeholder="الصق الآيات هنا..."></textarea>
+  <label>🎁 نقاط البونص لأول ٥ طلاب</label><input id="b" type="number" value="5" min="0">
+  <div id="qs"></div>
+  <div class="row"><button class="btn ghost" onclick="addQ()">+ سؤال</button><button class="btn gold" onclick="saveQuiz()">نشر الدرس ✝️</button></div></div>
+  <h2 class="kufi" style="color:var(--gold)">الدروس</h2>${qs.map(q=>`<div class="card"><div class="quiz"><div class="t"><b>${esc(q.title)}</b> <span class="badge">${q.n_attempts} حلّوا</span>${q.active?'':'<span class="badge r">مخفي</span>'}</div>
+   <button class="btn sm ghost" onclick="results(${q.id})">النتائج</button>
+   <button class="btn sm ghost" onclick="toggle(${q.id},${q.active?0:1})">${q.active?'إخفاء':'إظهار'}</button>
+   <button class="btn sm" onclick="del(${q.id})">حذف</button></div><div id="res${q.id}"></div></div>`).join('')}`;
+ addQ();
+}
+function addQ(){
+ const n=document.querySelectorAll('.q-admin').length,d=document.createElement('div');d.className='q-admin';
+ d.innerHTML=`<label>سؤال ${n+1}</label><input class="qt" placeholder="اكتب السؤال">
+  ${[0,1,2,3].map(j=>`<div class="oprow"><input type="radio" name="c${n}" value="${j}" ${j===0?'checked':''} title="الإجابة الصحيحة"><input class="qo" placeholder="الاختيار ${L[j]}${j>1?' (اختياري)':''}"></div>`).join('')}
+  <label>النقاط</label><input class="qp" type="number" value="10" min="1" style="max-width:120px"><small style="display:block">🔘 حدد الدائرة بجانب الإجابة الصحيحة</small>`;
+ $('#qs').append(d);
+}
+async function saveQuiz(){
+ const questions=[...document.querySelectorAll('.q-admin')].map(d=>{
+  const raw=[...d.querySelectorAll('.qo')].map(i=>i.value.trim()),ch=+d.querySelector('input[type=radio]:checked').value;
+  const options=[];let ci=-1;raw.forEach((o,j)=>{if(o){if(j===ch)ci=options.length;options.push(o)}});
+  return{text:d.querySelector('.qt').value,options,correct_index:ci,points:d.querySelector('.qp').value}}).filter(q=>q.text.trim()||q.options.length);
+ try{await api('/admin/quizzes',{method:'POST',body:{title:$('#t').value,passage_ref:$('#r').value,passage_text:$('#p').value,bonus_points:$('#b').value,questions}});renderAdmin();scrollTo(0,0)}
+ catch(e){$('#e').innerHTML=`<div class="err">${esc(e.message)}</div>`}
+}
+async function toggle(id,a){await api('/admin/quizzes/'+id,{method:'PATCH',body:{active:!!a}});renderAdmin()}
+async function del(id){if(confirm('حذف الدرس ونقاطه من كل الطلاب؟')){await api('/admin/quizzes/'+id,{method:'DELETE'});renderAdmin()}}
+async function results(id){const r=await api(`/admin/quizzes/${id}/results`);
+ $('#res'+id).innerHTML=r.length?r.map(x=>`<div class="lb"><div class="n">${x.finish_rank}</div><b>${esc(x.name)}</b><span>${x.score}${x.bonus?` +${x.bonus}🎁`:''}</span></div>`).join(''):'<p>لسه محدش حل.</p>'}
+
+async function boot(){
+ try{me=await api('/me');view=me.role==='admin'?'admin':'quizzes';chrome();go(view)}catch{me=null;chrome();renderAuth()}
+}
+boot();
+</script>
+</body>
+</html>
