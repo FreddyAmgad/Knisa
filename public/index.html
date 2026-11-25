@@ -149,14 +149,22 @@ function renderAuth(){
  draw();
 }
 
+let cdTimer;
+const hms=s=>[Math.floor(s/3600),Math.floor(s%3600/60),s%60].map(n=>String(n).padStart(2,'0')).join(':');
+const dayTag=(q,t)=>!q.scheduled_date?'<span class="badge">⏳ في الطابور</span>':q.scheduled_date===t.date?'<span class="badge n">📅 تحدي اليوم</span>':'<span class="badge">انتهى</span>';
+
 async function renderQuizzes(){
- const qs=await api('/quizzes');
- $('#app').innerHTML=!qs.length?`<div class="card result"><div class="em">📖</div><h2>مفيش دروس لسه</h2><p>استنى مدرسك يضيف درس الأسبوع!</p></div>`:
+ clearInterval(cdTimer);
+ const [qs,t]=await Promise.all([api('/quizzes'),api('/today')]);
+ const head=`<div class="card"><h2>⏳ ينتهي تحدي اليوم بعد <span id="cd">${hms(t.seconds_left)}</span></h2></div>`;
+ $('#app').innerHTML=head+(!qs.length?`<div class="card result"><div class="em">📖</div><h2>مفيش تحدي النهاردة</h2><p>استنى مدرسك يضيف تحديات جديدة!</p></div>`:
  qs.map(q=>`<div class="card quiz"><div class="t"><h2>${esc(q.title)}</h2><div class="ref">${esc(q.passage_ref)}</div>
-  ${q.my_score==null&&me.role!=='admin'?'<span class="badge n">جديد!</span>':''}<span class="badge">${q.n_questions} أسئلة</span><span class="badge">⭐ ${q.max_score} نقطة</span><span class="badge">🎁 +${q.bonus_points} لأول ٥</span>
+  ${dayTag(q,t)}<span class="badge">${q.n_questions} أسئلة</span><span class="badge">⭐ ${q.max_score} نقطة</span><span class="badge">🎁 +${q.bonus_points} لأول ٥</span>
   ${me.role==='admin'&&!q.active?'<span class="badge r">مخفي</span>':''}</div>
   ${q.my_score!=null?`<span class="badge g">✅ ${q.my_score}${q.my_bonus?` + ${q.my_bonus} 🎁`:''}</span>`:''}
-  <button class="btn ${q.my_score!=null?'ghost':'gold'}" onclick="openQuiz(${q.id})">${q.my_score!=null?'راجع إجاباتك':me.role==='admin'?'معاينة':'ابدأ التحدي 🚀'}</button></div>`).join('');
+  <button class="btn ${q.my_score!=null?'ghost':'gold'}" onclick="openQuiz(${q.id})">${q.my_score!=null?'راجع إجاباتك':me.role==='admin'?'معاينة':'ابدأ التحدي 🚀'}</button></div>`).join(''));
+ let left=t.seconds_left;
+ cdTimer=setInterval(()=>{const e=$('#cd');if(!e)return clearInterval(cdTimer);left--;if(left<0){clearInterval(cdTimer);return renderQuizzes()}e.textContent=hms(left)},1000);
 }
 
 const backBtn=`<button class="btn sm gold" style="margin-bottom:12px" onclick="go('quizzes')">← الدروس</button>`;
@@ -203,14 +211,14 @@ async function renderBoard(){
 }
 
 async function renderAdmin(){
- const qs=await api('/quizzes');
+ const [qs,t]=await Promise.all([api('/quizzes'),api('/today')]);
  $('#app').innerHTML=`<div class="card"><h2>➕ درس جديد</h2><div id="e"></div>
   <div class="row"><div><label>عنوان الدرس</label><input id="t" placeholder="مثال: الابن الضال"></div><div><label>المرجع</label><input id="r" placeholder="لوقا ١٥: ١١-٣٢"></div></div>
   <label>نص الآيات</label><textarea id="p" rows="6" placeholder="الصق الآيات هنا..."></textarea>
   <label>🎁 نقاط البونص لأول ٥ طلاب</label><input id="b" type="number" value="5" min="0">
   <div id="qs"></div>
   <div class="row"><button class="btn ghost" onclick="addQ()">+ سؤال</button><button class="btn gold" onclick="saveQuiz()">نشر الدرس ✝️</button></div></div>
-  <h2 class="kufi" style="color:var(--gold)">الدروس</h2>${qs.map(q=>`<div class="card"><div class="quiz"><div class="t"><b>${esc(q.title)}</b> <span class="badge">${q.n_attempts} حلّوا</span>${q.active?'':'<span class="badge r">مخفي</span>'}</div>
+  <h2 class="kufi" style="color:var(--gold)">الدروس</h2>${qs.map(q=>`<div class="card"><div class="quiz"><div class="t"><b>${esc(q.title)}</b> <span class="badge">${q.n_attempts} حلّوا</span>${dayTag(q,t)}${q.active?'':'<span class="badge r">مخفي</span>'}</div>
    <button class="btn sm ghost" onclick="results(${q.id})">النتائج</button>
    <button class="btn sm ghost" onclick="toggle(${q.id},${q.active?0:1})">${q.active?'إخفاء':'إظهار'}</button>
    <button class="btn sm" onclick="del(${q.id})">حذف</button></div><div id="res${q.id}"></div></div>`).join('')}`;

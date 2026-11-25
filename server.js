@@ -15,6 +15,37 @@ const db = createClient({
   authToken: process.env.TURSO_AUTH_TOKEN,
 });
 
+// ---------- DAILY CHALLENGE HELPERS ----------
+const TZ = 'Africa/Cairo';
+const MAX_QUEUE = Number(process.env.MAX_QUEUE) || 365; // max quizzes waiting in the queue
+const todayStr = () => new Date().toLocaleDateString('en-CA', { timeZone: TZ }); // YYYY-MM-DD
+
+function secondsLeftToday() {
+  const p = Object.fromEntries(
+    new Intl.DateTimeFormat('en-GB', {
+      timeZone: TZ, hour: '2-digit', minute: '2-digit', second: '2-digit', hourCycle: 'h23',
+    }).formatToParts(new Date()).map((x) => [x.type, x.value])
+  );
+  return 86400 - (+p.hour * 3600 + +p.minute * 60 + +p.second);
+}
+
+// Assign the next queued quiz to today if none is scheduled yet
+async function ensureToday() {
+  const today = todayStr();
+  const has = await db.execute({ sql: 'SELECT 1 FROM quizzes WHERE scheduled_date=? LIMIT 1', args: [today] });
+  if (has.rows.length) return;
+  try {
+    await db.execute({
+      sql: `UPDATE quizzes SET scheduled_date=? WHERE id=(
+              SELECT id FROM quizzes WHERE scheduled_date IS NULL AND active=1
+              ORDER BY queue_pos, id LIMIT 1)`,
+      args: [today],
+    });
+  } catch (e) {
+    if (!String(e?.message || '').includes('UNIQUE')) throw e; // another request already assigned it
+  }
+}
+
 // ---------- DATABASE ----------
 async function initDb() {
   await db.batch(
@@ -70,6 +101,17 @@ async function initDb() {
       )`,
     ],
     'write'
+  );
+
+  // ---------- DAILY QUEUE MIGRATION ----------
+  for (const sql of [
+    'ALTER TABLE quizzes ADD COLUMN scheduled_date TEXT',
+    'ALTER TABLE quizzes ADD COLUMN queue_pos INTEGER NOT NULL DEFAULT 0',
+  ]) {
+    try { await db.execute(sql); } catch (_) { /* column already exists */ }
+  }
+  await db.execute(
+    'CREATE UNIQUE INDEX IF NOT EXISTS one_quiz_per_day ON quizzes(scheduled_date) WHERE scheduled_date IS NOT NULL'
   );
 
   // ---------- THE ONE ADMIN ACCOUNT (created from env vars, never via signup) ----------
@@ -206,16 +248,20 @@ app.get('/api/me', auth, (req, res) => res.json(req.user));
 // ---- student side ----
 app.get('/api/quizzes', auth, async (req, res) => {
   try {
+    await ensureToday();
+    const today = todayStr();
+    const isAdmin = req.user.role === 'admin';
     const r = await db.execute({
       sql: `
-        SELECT q.id,q.title,q.passage_ref,q.bonus_points,q.active,q.created_at,
+        SELECT q.id,q.title,q.passage_ref,q.bonus_points,q.active,q.created_at,q.scheduled_date,
           (SELECT COUNT(*) FROM questions WHERE quiz_id=q.id) AS n_questions,
           (SELECT COALESCE(SUM(points),0) FROM questions WHERE quiz_id=q.id) AS max_score,
           (SELECT COUNT(*) FROM attempts WHERE quiz_id=q.id) AS n_attempts,
           a.score AS my_score, a.bonus AS my_bonus, a.finish_rank AS my_rank
         FROM quizzes q LEFT JOIN attempts a ON a.quiz_id=q.id AND a.user_id=?
-        ${req.user.role === 'admin' ? '' : 'WHERE q.active=1'} ORDER BY q.id DESC`,
-      args: [req.user.id],
+        ${isAdmin ? '' : 'WHERE q.active=1 AND (q.scheduled_date=? OR a.id IS NOT NULL)'}
+        ORDER BY (q.scheduled_date IS NULL) DESC, q.scheduled_date DESC, q.queue_pos, q.id`,
+      args: isAdmin ? [req.user.id] : [req.user.id, today],
     });
     res.json(r.rows);
   } catch (e) {
@@ -223,6 +269,10 @@ app.get('/api/quizzes', auth, async (req, res) => {
     res.status(500).json({ error: 'خطأ في الخادم' });
   }
 });
+
+app.get('/api/today', auth, (req, res) =>
+  res.json({ date: todayStr(), seconds_left: secondsLeftToday() })
+);
 
 app.get('/api/quizzes/:id', auth, async (req, res) => {
   try {
@@ -240,6 +290,9 @@ app.get('/api/quizzes/:id', auth, async (req, res) => {
       args: [q.id, req.user.id],
     });
     const att = attRes.rows[0];
+    if (req.user.role !== 'admin' && !att && q.scheduled_date !== todayStr()) {
+      return res.status(404).json({ error: 'التحدي غير متاح اليوم' });
+    }
 
     const qsRes = await db.execute({
       sql: 'SELECT * FROM questions WHERE quiz_id=? ORDER BY position,id',
@@ -287,13 +340,13 @@ app.post('/api/quizzes/:id/submit', auth, async (req, res) => {
     tx = await db.transaction('write');
 
     const qRes = await tx.execute({
-      sql: 'SELECT * FROM quizzes WHERE id=? AND active=1 LIMIT 1',
-      args: [req.params.id],
+      sql: 'SELECT * FROM quizzes WHERE id=? AND active=1 AND scheduled_date=? LIMIT 1',
+      args: [req.params.id, todayStr()],
     });
     const q = qRes.rows[0];
     if (!q) {
       await tx.rollback();
-      return res.status(404).json({ error: 'الدرس غير موجود' });
+      return res.status(404).json({ error: 'انتهى وقت هذا التحدي' });
     }
 
     const dupRes = await tx.execute({
@@ -403,11 +456,16 @@ app.post('/api/admin/quizzes', auth, adminOnly, async (req, res) => {
     }
   }
 
+  const queued = await db.execute('SELECT COUNT(*) AS c FROM quizzes WHERE scheduled_date IS NULL');
+  if (Number(queued.rows[0].c) >= MAX_QUEUE) {
+    return res.status(400).json({ error: `الطابور ممتلئ (${MAX_QUEUE} تحدي)` });
+  }
+
   let tx;
   try {
     tx = await db.transaction('write');
     const r = await tx.execute({
-      sql: 'INSERT INTO quizzes(title,passage_ref,passage_text,bonus_points) VALUES(?,?,?,?)',
+      sql: 'INSERT INTO quizzes(title,passage_ref,passage_text,bonus_points,queue_pos) VALUES(?,?,?,?,(SELECT COALESCE(MAX(queue_pos),0)+1 FROM quizzes))',
       args: [
         b.title.trim(),
         String(b.passage_ref || '').trim(),
